@@ -1,26 +1,24 @@
-﻿// passwordChecker.cpp : Defines the entry point for the application.
-//
+﻿#include <iostream>
+#include <cryptopp/filters.h>
+#include <cryptopp/sha.h>
+#include <curl/curl.h>
+#include <cryptopp/hex.h>
 
-#include "PasswordChecker.h"
-
-
-using namespace std;
-using namespace CryptoPP;
-
-
-
-//int main(int argc, const char **argv)
-//{
-//	
-//}
+bool PasswordFilter(std::string);
 
 int main(int argc, const char** argv) {
+    if(argc < 2){
+        std::cout << "Usage: PasswordChecks <password>" << std::endl;
+        return 1;
+    }
 	int goodPwd = 0;
 	bool pwned = PasswordFilter(argv[1]);
 	if (pwned == false) {
-		printf("can not change password");
+		std::cout << "Not a good password" << std::endl;
 		int goodPwd = 1;
-	}
+	}else{
+        std::cout << "Possibly good password" << std::endl;
+    }
 	return goodPwd;
 }
 
@@ -30,31 +28,31 @@ size_t cURL_Callback(void* contents, size_t size, size_t nmemb, std::string* s)
 	return size * nmemb;
 }
 
-bool PasswordFilter(string password) {
+bool PasswordFilter(std::string password) {
 	// Declare and initialise the returnValue Boolean expresion as true by default - allow the password change by default
 	bool returnValue = true;
 
 	// Declare the String to hold the SHA1 hash
-	string hash = "";
+	std::string hash = "";
 
 	// Long and convoluted way of getting password String from PUNICODE_STRING
-	//std::wstring wStrBuffer(password->Buffer, password->Length / sizeof(WCHAR));
+	//std::wstd::string wStrBuffer(password->Buffer, password->Length / sizeof(WCHAR));
 	//const wchar_t* wideChar = wStrBuffer.c_str();
-	//std::wstring wStr(wideChar);
-	//std::string str(wStr.begin(), wStr.end());
+	//std::wstd::string wStr(wideChar);
+	//std::std::string str(wStr.begin(), wStr.end());
 
-	// Generate an SHA1 hash of the requesting password string through Crypto++
-	SHA1 sha1;
-	StringSource(password, true, new HashFilter(sha1, new HexEncoder(new StringSink(hash))));
+	// Generate an SHA1 hash of the requesting password std::string through Crypto++
+	CryptoPP::SHA1 sha1;
+	CryptoPP::StringSource(password, true, new CryptoPP::HashFilter(sha1, new CryptoPP::HexEncoder(new CryptoPP::StringSink(hash))));
 
 	// Declare and initialise cURL
 	CURL* curl = curl_easy_init();
 
 	// Initialise URL String as being the API address, as well as the first 5 letters of the password hash
-	string URL("https://api.pwnedpasswords.com/range/" + hash.substr(0, 5));
+	std::string URL("https://api.pwnedpasswords.com/range/" + hash.substr(0, 5));
 
 	// Declare String for the API response
-	string APIResponse;
+	std::string APIResponse;
 
 	int http_status_code; // Declare the http_status_code variable
 	if (curl) { // If cURL has been initialised..
@@ -81,7 +79,7 @@ bool PasswordFilter(string password) {
 			{
 				std::size_t found = APIResponse.find(hash.substr(5)); // Attempt to find the hash suffix
 
-				if (found != std::string::npos) // The find function will return string::npos if the requested string was no found
+				if (found != std::string::npos) // The find function will return string::npos if the requested std::string was no found
 				{
 					returnValue = false; // If the hash exists, then set the return value to false (i.e. don't allow the password to be changed)
 				}
