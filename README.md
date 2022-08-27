@@ -1,8 +1,8 @@
-##Password Checks
+# Password Checks
 
 A simple program that takes the inputed password and checks it against the have I been pwned pwned password list.
 
-#To Compile
+### To Compile
 
 To compile the program you need to have the following installed:
     libcryptopp
@@ -15,6 +15,6 @@ This uses CMake to compile the program. To compile the program, run the followin
     cmake ..
     make
 
-#To Run
+### To Run
 
     ./PasswordCheck <password>
